@@ -1,2 +1,2 @@
-101, Dipak Rai, 27, Male, 12, Bhaktapur
+101, Sandira Limbu, 28, Female, 12, Jhapa
 102, Suman Rai, 26, Male, 12, Dharan
