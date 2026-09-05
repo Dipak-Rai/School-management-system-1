@@ -1,2 +1,1 @@
-101, Sandira Limbu, 28, Female, 12, Jhapa
-102, Suman Rai, 26, Male, 12, Dharan
+102, Suman Rai, 24, male, 12, dharan

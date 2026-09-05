@@ -286,7 +286,8 @@ def update_student_information():
                         student_age = int(input("Update student age: ").strip())
                         if student_age <= 0 or student_age>=120:
                             print("Sorry! student age must be 1 to 119 years")
-                            
+                            return
+                        
                     except ValueError:
                         print("Sorry! Please enter valid age number.")
                         return
@@ -320,13 +321,93 @@ def update_student_information():
         print("Error! You have no permission to update student information.")
     except OSError as err:
         print(f"Error! File system error: {err}")
-        
-                         
-            
-            
-            
-            
     
+
+                         
+def delete_student_information():
+    file_name = input("Enter file name: ").strip()
+    if not file_name:
+        print("Sorry! File name should not be empty.")
+        return
+    
+    student_file_path = Path(file_name)
+    
+    if student_file_path.suffix=="":
+        student_file_path = student_file_path.with_suffix(".txt")
+        
+    
+    if not student_file_path.exists():
+        print(f"Sorry! {student_file_path} file does not exist")
+        return
+    
+    if not student_file_path.is_file():
+        print(f"Sorry! {student_file_path} file is not a file.")
+        return
+    
+    try:
+        student_file_found = False
+        student_id = input("Enter student id: ").strip()
+        
+        with open(student_file_path, 'r') as file:
+            student_info = file.readlines()
+            
+            for index , line in enumerate(student_info):
+                
+                if not line.strip():
+                    continue
+                
+                info = line.strip().split(",")
+                
+                if len(info)<6:
+                    print("Sorry! Invalid student information.")
+                    continue
+                
+                if info[0].strip()==student_id:
+                    student_file_found = True
+                    student_info.pop(index)
+                    break
+        if student_file_found:
+            with open(student_file_path, 'w') as file:
+                file.writelines(student_info)    
+            print("Student information deleted successfully.")   
+        else:
+            print("Sorry! student information could not found.")     
+    except PermissionError:
+        print("Error! you have no permission to delete student information.")
+    except OSError as err:
+        print(f"Error! File system error: {err}")
+
+
+        
+def create_teacher_file():
+    file_name = input("Enter file name to create teacher file: ").strip()
+    if not file_name:
+        print("Sorry! File name should not be empty.")
+        return
+    
+    
+    teacher_file_path = Path(file_name)
+    if teacher_file_path.suffix == "":
+        teacher_file_path = teacher_file_path.with_suffix(".txt")
+    
+    if teacher_file_path.exists():
+        print(f"Sorry! {teacher_file_path} file already exist.")
+        return
+    
+    try:
+        with open(teacher_file_path, 'w'):
+            pass
+        print("Teacher file created successfully.")
+    except PermissionError:
+        print("Error! you have no permission to create teacher's file.")
+    except OSError as err:
+        print(f"Error! File system error: {err}")
+
+
+    
+         
+                
+        
              
      
      
@@ -373,3 +454,22 @@ while  True:
     
     elif choice == 6:
         delete_student_information()
+    
+    
+    elif choice == 7:
+        create_teacher_file()
+    
+    elif choice == 8:
+        add_teacher_information()
+    
+    elif choice == 9:
+        view_teacher_information()
+            
+    elif choice == 10:
+        search_teacher_information()
+    
+    elif choice == 11:
+        update_teacher_information()
+    
+    elif choice == 12:
+        delete_teacher_information()
