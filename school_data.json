@@ -1,0 +1,17 @@
+{
+    "students": [
+        {
+            "student_id": "101",
+            "name": "Suman Rai",
+            "age": 12,
+            "gender": "Male",
+            "class": "5",
+            "address": "Bhaktapur",
+            "grades": {
+                "Computer": 90.0,
+                "Math": 99.0
+            }
+        }
+    ],
+    "teachers": []
+}

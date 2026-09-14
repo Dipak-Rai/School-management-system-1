@@ -1,433 +1,320 @@
+import json
+from abc import ABC, abstractmethod
 from pathlib import Path
 
-def create_student_file():
-    try: 
-        student_file_name = input("Enter student file name: ").strip()
-        if not student_file_name:
-            print("Sorry! student file name should not be empty.")
-            return
+# Create Database
+database = Path(__file__).resolve().parent /"school_data.json"
+data = {
+    "students": [], 
+    "teachers": []
+}
+
+if database.exists():
+    with open(database, 'r') as file:
+        content = file.read()
         
-        student_file_path = Path(student_file_name)
-        
-        if student_file_path.suffix=="":
-            student_file_path = student_file_path.with_suffix(".txt")
-            
-        if student_file_path.exists():
-            print(f"Sorry! {student_file_path} file name already exist.")
-            return
-        
-        with open(student_file_path, 'w') as file:
-            pass
-        print("Student file created successfully.")
-        
-    except PermissionError:
-        print("Error! You have no permission to create student file.")
-    except OSError as err:
-        print(f"Error! File system error: {err}")
+        if content:
+            data = json.loads(content)
+    
+
+# Save info in database: 
+def save():
+    with open(database, 'w') as file:
+        json.dump(data, file, indent=4)
 
 
+class Persons(ABC):
+    @abstractmethod
+    def get_roles(self):
+        pass
+    
+    @abstractmethod
+    def register(self):
+        pass
+    
+    def show_details(self):
+        pass
+    
 
-def add_student_information():
-    file_name = input("Enter file name to add student: ").strip()
+class Student(Persons):
+    def get_roles(self):
+        return "students"
     
-    #check file name is empty or not
-    if not file_name:
-        print("Sorry! File name should not be empty: ")
-        return
-    
-    #Create path 
-    student_path = Path(file_name)
-    
-    #Add extension .txt autometically
-    if student_path.suffix == "":
-        student_path = student_path.with_suffix(".txt")
-    
-    #check if file not exist:
-    if not student_path.exists():
-        print(f"Sorry! {student_path} file does not exist")
-        return
-    
-    if not student_path.is_file():
-        print(f"Sorry! {student_path} file is not a file.")
-        return
-    
-    try: 
-        student_id_found = False
-        student_id = input("Enter student id: ").strip()
+    def register(self):
+        student_id = input("Enter student ID: ").strip()
         if not student_id:
-            print("Sorry! student id should not be empty.")
+            print("Sorry! Student id should not be empty.")
             return
-        
-        with open(student_path, 'r') as file:
-            for line in file:
-                if not line.strip():
-                    continue
-                
-                info = line.strip().split(",")
-                
-                if info[0].strip()==student_id:
-                    student_id_found = True
-        if student_id_found:
-            print(f"Sorry! {student_id} student id already exist")
-            return
-        else:
-            pass
-        
-        student_name = input("Enter student name: ").strip()
-        if not student_name:
-            print("Sorry! student name should not be empty.")
+        name = input("Enter student name: ").strip()
+        if not name: 
+            print("Sorry! Student name should not be empty.")
             return
         
         try:
-            student_age = int(input("Enter student age: ").strip())
-            if not 1<= student_age <120:
-                print("Sorry! Enter a valid age between 1 and 119.")
+            age = int(input("Enter student age: ").strip())
+
+            if age <= 0 or age >= 120:
+                print("Sorry! student age must be between 1 to 119.")
                 return
+
         except ValueError:
-            print("Sorry! enter valid age number")
+            print("Error! Enter valid student age.")
             return
         
-        student_gender = input("Enter student gender: ").strip()
-        if not student_gender:
-            print("Sorry! student gender should not be empty.")
+        gender = input("Enter student gender: ").strip()
+        if not gender:
+            print("Sorry! Gender should not be empty.")
             return
         
-        student_class = input("Enter student class: ").strip()
-        if not student_class:
-            print("Sorry! student class should not be empty.")
+        grade = input("Enter student class: ").strip()
+        if not grade:
+            print("Sorry! Student grade should not be empty.")
             return
         
-        student_address = input("Enter student address: ").strip()
-        if not student_address:
-            print("Sorry! student address should not be empty.")
+        address = input("Enter student address: ").strip()
+        if not address:
+            print("Sorry! Student addrerss should not be empty.")
             return
         
-        student_info = (
-            f"{student_id}, {student_name}, {student_age}, {student_gender}, {student_class}, {student_address}\n"
-        )
+        for student in data['students']:
+            if student['student_id'] == student_id:
+                print("Sorry! Student id already exist")
+                return
         
-        with open(student_path, 'a') as file:
-            file.write(student_info)
-        
-        print("\nStudent information added successfully.")
-    except PermissionError:
-        print("Error! You have no permission to add student.")
-    except OSError as err:
-        print(f"File system error! {err}")
-    
-                
-def view_student_information():
-    file_name = input ("Enter student file name: ").strip()
-    if not file_name:
-        print("Sorry! file name should not be empty.")
-        return
-    
-    student_file_path = Path(file_name)
-    
-    if student_file_path.suffix =="":
-        student_file_path = student_file_path.with_suffix(".txt")
-    
-    if not student_file_path.exists():
-        print(f"Sorry! {student_file_path} file does not exist")
-        return
-    
-    if not student_file_path.is_file():
-        print(f"Sorry! {student_file_path} file is not a file.")
-        return
-    
-    try:
-        with open (student_file_path, 'r') as file:
-            for line in file: 
-                if not line.strip():
-                    continue
-                info = line.strip().split(",")
-                
-                print("\nStudent information")
-                print("==========================")
-                print(
-                    f"Student ID        : {info[0]}\n"
-                    f"Student Name      : {info[1]}\n"
-                    f"Student Age       : {info[2]}\n"
-                    f"Student Gender    : {info[3]}\n"
-                    f"Student Class     : {info[4]}\n"
-                    f"Student Addreass  : {info[5]}\n"   
-                )
-        print("\nStudent information view successfully.")
-        return
-    except PermissionError:
-        print("Error! You have no permission to view student information.")
-    except OSError as err:
-        print(f"Error! File system error: {err}")
-
-
-def search_student_information():
-    file_name = input("Enter file name: ").strip()
-    
-    if not file_name:
-        print("Sorry! File name should not be empty.")
-        return
-    
-    student_file_path = Path(file_name)
-    if student_file_path.suffix=="":
-        student_file_path = student_file_path.with_suffix(".txt")
-    
-    
-    if not student_file_path.exists():
-        print(f"Sorry! {student_file_path} file does not exist.")
-        return
-    
-    if not student_file_path.is_file():
-        print(f"Sorry! {student_file_path} file is not a file.")
-        return
-    
-    
-    try: 
-        student_information_found = False
-        student_id = input("Enter student ID: ").strip()
-        
-        with open(student_file_path, 'r') as file:
-            for line in file:
-                if not line.strip():
-                    continue
-                
-                info = line.strip().split(',')
-                
-                if len(info)<6:
-                    print("Sorry! Invalid information.")
-                    continue
-                
-                if info[0].strip()==student_id:
-                    student_information_found = True
-                    print("\nStudent Information")
-                    print("==========================")
-                    print(
-                        f"Student ID        : {info[0]}\n"
-                        f"Student Name      : {info[1]}\n"
-                        f"Student Age       : {info[2]}\n"
-                        f"Student Gender    : {info[3]}\n"
-                        f"Student Class     : {info[4]}\n"
-                        f"Student Addreass  : {info[5]}\n"   
-                    )
-        if student_information_found:
-            print("Student information found successfully.")
-            return
-        else:
-            print("Sorry! Student information does not found.")
-            return
-    except PermissionError:
-        print("Error! You have no permission to search student information.")
-    except OSError as err:
-        print(f"Error! File system error! {err}")
-    
-        
-
-def update_student_information():
-    file_name = input("Enter file name: ")
-    
-    if not file_name:
-        print("Sorry! File name should not be empty.")
-        return
-    
-    student_file_path = Path(file_name)
-    
-    if student_file_path.suffix == "":
-        student_file_path = student_file_path.with_suffix(".txt")
-    
-    
-    if not student_file_path.exists():
-        print(f"Sorry! {student_file_path} file does not exist")
-        return
-    
-    if not student_file_path.is_file():
-        print(f"Sorry! {student_file_path} file is not a file.")
-        return
-    
-    
-    try:
-        student_information_found = False
-        student_id = input("Enter student ID: ").strip()
-        
-        with open(student_file_path, "r") as file:
-            student_info = file.readlines()
+        # Add Student.
+        data['students'].append({
+            "student_id":student_id,
+            "name": name,
+            "age": age,
+            "gender": gender,
+            "class": grade,
+            "address":address,
+            "grades": {}  
+        })
             
-            for index, line in enumerate(student_info):
-                
-                if not line.strip():
-                    continue
-                
-                info = line.strip().split(',')
-                
-                if len(info)<6:
-                    print("Sorry! Invalid information.")
-                    continue
-                
-                if info[0].strip() == student_id:
-                    student_information_found = True
-                    print("\nCurrent Student Information")
-                    print("==========================")
+        save()
+        print("\nStudent information added successfully.")
+    
+      
+    def show_details(self):
+        try:  
+            student_id = input("Enter student id: ").strip()
+            
+            for student in data['students']:
+                if student['student_id']==student_id.strip():
+                    grades = student['grades']
+                    average_marks = sum(grades.values())/len(grades) if grades else 0
+                    print(f"\n{student['name']} Data.")
                     print(
-                        f"Student ID        : {info[0]}\n"
-                        f"Student Name      : {info[1]}\n"
-                        f"Student Age       : {info[2]}\n"
-                        f"Student Gender    : {info[3]}\n"
-                        f"Student Class     : {info[4]}\n"
-                        f"Student Addreass  : {info[5]}\n"   
+                        f"Student Name      : {student['name']}\n"
+                        f"Student Age       : {student['age']}\n"
+                        f"Student Gender    : {student['gender']}\n"
+                        f"Student Class     : {student['class']}\n"
+                        f"Student Address   : {student['address']}\n"
+                        f"===========================================\n"
+                        f"Student Gradde :{grades}\n"
+                        f"Student Gradde :{average_marks}\n"
+                    )
+                    print("Student Information viewed successfully")
+                else:
+                    print("Sorry! Student information does not exist.1")
+        except PermissionError:
+            print("Error! You have no permission to add student data.")
+        except OSError as err:
+            print(f"Error! File system error: {err}")
+    
+    
+    def add_grades(self):
+        try: 
+            student_id = input("Enter student ID: ").strip()
+            if not student_id:
+                print("Sorry! Student id should not be empty.")
+                return
+            subject = input("Enter subject: ").strip()
+            if not subject:
+                print("Sorry! subject should not be empty.")
+                return
+            
+            try:
+                marks = float(input("Enter mark: ").strip())
+                if marks<0 or marks>100:
+                    print("sorry! student marks should not be less then 0 or more then 100")
+                    return
+            except ValueError:
+                print("Error! Enter valid marks")
+                return
+            for student in data['students']:
+                if student['student_id']==student_id.strip():
+                    student['grades'] [subject] = marks
+                    save()
+                    print("Grade added successfully")
+                else:
+                    print("Sorry! Student information does not exist.")
+                    return
+        except PermissionError:
+            print("Error! You have no permission to add student marks.")
+        except OSError as err:
+            print(f"Error! File system error: {err}")            
+                
+    def update_student(self):
+        try:
+            student_id_found = False
+            student_id = input("Enter student id: ").strip()
+            if not student_id:
+                print("Sorry! Student id should not be empty.")
+                return
+            
+            for student in data['students']:
+                if student['student_id']==student_id.strip():
+                    student_id_found = True
+                    print(f"\nCurrent {student['name']} information:-")
+                    print(
+                        f"Student Name      : {student['name']}\n"
+                        f"Student Age       : {student['age']}\n"
+                        f"Student Gender    : {student['gender']}\n"
+                        f"Student Class     : {student['class']}\n"
+                        f"Student Address   : {student['address']}\n"
+                        # f"===========================================\n"
+                        # f"Student Gradde :{student['grades']}\n"
+                        # f"Student Gradde :{student['average_marks']}\n"
                     )
                     
-                    print("\nUpdate student information.")
-                    print("------------------------------")
-                    
-                    student_name = input("Update student name: ").strip()
-                    if not student_name:
-                        print("Sorry! Student name should not be empty.")
-                        return
+                    print(f"\nUpdate {student['name']} information")
+                    print("1. for update name.")
+                    print("2. for update Age.")
+                    print("3. for update Gender.")
+                    print("4. for update student class.")
+                    print("5. for update Addrerss.")
+                    print("6. for update Grades.")
+                    print("7. for update Average marks.")
                     
                     try:
-                        student_age = int(input("Update student age: ").strip())
-                        if student_age <= 0 or student_age>=120:
-                            print("Sorry! student age must be 1 to 119 years")
+                        choice = int(input("Enter number which you want to update: ").strip())
+                    except ValueError:
+                        print("Error! Enter valid number for update student information.")
+                        return
+                    
+                    if choice==1:
+                        name = input("Update student name: ").strip()
+                        if not name:
+                            print("Sorry! name should not be empty.")
+                            return
+                        student["name"] = name
+                        
+                    elif choice ==2:
+                        try:
+                            age = int(input("Update student age.").strip())
+                            if age<=0 or age>=120:
+                                print("Sorry! student age must be grater than 0 and less than 119")
+                                return
+                        except ValueError:
+                            print("Error! enter valid student age.")
+                            return
+                        student['age']= age
+                            
+                    elif choice == 3:
+                        gender = input("Update student gender: ").strip()
+                        if not gender:
+                            print("Sorry! Student gender should not be empty.")
+                            return
+                        student["gender"] = gender
+                    
+                    elif choice == 4:
+                        student_class = input("Update student class: ").strip()
+                        if not student_class:
+                            print("Sorry! Student class should not be empty.")
                             return
                         
-                    except ValueError:
-                        print("Sorry! Please enter valid age number.")
+                        student["class"] = student_class
+                    
+                    elif choice == 5:
+                        address = input("Update student address: ").strip()
+                        if not address:
+                            print("Sorry! Student address should not be empty.")
+                            return
+                        
+                        student["address"] = address
+                        
+                    else:
+                        print("Sorry! Please selected a number 1 to 5.")
                         return
                     
-                    student_gender = input("Update student gender: ").strip()
-                    if not student_gender:
-                        print("Sorry! Student gender should not be empty.")
-                        return
-                    
-                    student_class = input("Update student class: ").strip()
-                    if not student_class:
-                        print("Sorry! Student class should not be empty.")
-                        return
-                    
-                    student_address = input("Update student address: ").strip()
-                    if not student_address:
-                        print("Sorry! Student address should not be empty.")
-                        return
-                    
-                    student_info[index] = (
-                        f"{student_id}, {student_name}, {student_age}, {student_gender}, {student_class}, {student_address}\n"
-                    )
-        if student_information_found:
-            with open(student_file_path, 'w') as file:
-                file.writelines(student_info)
-            print("\nStudent information updated successfully.")
+                    save()
+                    print("Student infromation updated successfully.")
+                    return
+                
+            if not student_id_found:
+                print("Sorry! Student information does not exist.")
+                return
+        except PermissionError:
+            print("Error! You have no permission to update student information.")
             return
-        else:
-            print("Sorry! Student information does not exist.")    
-    except PermissionError:
-        print("Error! You have no permission to update student information.")
-    except OSError as err:
-        print(f"Error! File system error: {err}")
-    
-
-                         
-def delete_student_information():
-    file_name = input("Enter file name: ").strip()
-    if not file_name:
-        print("Sorry! File name should not be empty.")
-        return
-    
-    student_file_path = Path(file_name)
-    
-    if student_file_path.suffix=="":
-        student_file_path = student_file_path.with_suffix(".txt")
         
-    
-    if not student_file_path.exists():
-        print(f"Sorry! {student_file_path} file does not exist")
-        return
-    
-    if not student_file_path.is_file():
-        print(f"Sorry! {student_file_path} file is not a file.")
-        return
-    
-    try:
-        student_file_found = False
-        student_id = input("Enter student id: ").strip()
+        except OSError as err:
+            print(f"Error! File system error: {err}")
         
-        with open(student_file_path, 'r') as file:
-            student_info = file.readlines()
+    def delete_student(self):
+        student_id_found = False
+        student_id = input("Enter student id for delete information: ").strip()
+        if not student_id:
+            print("Sorry! Student id should not be empty.")
+            return
+        
+        for index, student in enumerate(data['students']):
+            if student['student_id'] == student_id.strip():
+                student_id_found = True
+                print("\nStudent found")
+                print(
+                    f"Student Name      : {student['name']}\n"
+                    f"Student Age       : {student['age']}\n"
+                    f"Student Gender    : {student['gender']}\n"
+                    f"Student Class     : {student['class']}\n"
+                    f"Student Address   : {student['address']}\n"
+                )
+                conformation = input("\nAre you sure you want to delete this student? (yes/no): ").strip().lower()
+                
+                if conformation != "yes":
+                    print("\nDelete operation cancelled.")
+                    return
+                else:
+                    data['students'].pop(index)
+                    save()
+                    print("\nStudent information deleted successfully.")
+                    return
+        if not student_id_found:
+            print("Sorry! Student information does not exist.")
+            return
+        
+        
+                
+                
+                              
             
-            for index , line in enumerate(student_info):
+                    
                 
-                if not line.strip():
-                    continue
+                    
+                    
+                    
+                    
                 
-                info = line.strip().split(",")
                 
-                if len(info)<6:
-                    print("Sorry! Invalid student information.")
-                    continue
                 
-                if info[0].strip()==student_id:
-                    student_file_found = True
-                    student_info.pop(index)
-                    break
-        if student_file_found:
-            with open(student_file_path, 'w') as file:
-                file.writelines(student_info)    
-            print("Student information deleted successfully.")   
-        else:
-            print("Sorry! student information could not found.")     
-    except PermissionError:
-        print("Error! you have no permission to delete student information.")
-    except OSError as err:
-        print(f"Error! File system error: {err}")
-
-
-        
-def create_teacher_file():
-    file_name = input("Enter file name to create teacher file: ").strip()
-    if not file_name:
-        print("Sorry! File name should not be empty.")
-        return
-    
-    
-    teacher_file_path = Path(file_name)
-    if teacher_file_path.suffix == "":
-        teacher_file_path = teacher_file_path.with_suffix(".txt")
-    
-    if teacher_file_path.exists():
-        print(f"Sorry! {teacher_file_path} file already exist.")
-        return
-    
-    try:
-        with open(teacher_file_path, 'w'):
-            pass
-        print("Teacher file created successfully.")
-    except PermissionError:
-        print("Error! you have no permission to create teacher's file.")
-    except OSError as err:
-        print(f"Error! File system error: {err}")
-
-
-    
-         
                 
-        
-             
-     
-     
-        
-    
-    
+                
+                
 
 
 
-
-
+student_information = Student()  
+          
 
 while  True:
     print("======School Management System======")
-    print("\nEnter 1 to Create student file")
-    print("Enter 2 to Add student information")
-    print("Enter 3 to View student information")
-    print("Enter 4 to Search student information")
-    print("Enter 5 to Update student information")
-    print("Enter 6 to Delete student information")
+    print("Enter 1 to Add students information")
+    print("Enter 2 to View students information")
+    print("Enter 3 to Add students grade")
+    print("Enter 4 to Search students information")
+    print("Enter 5 to Update students information")
     
     
     try: 
@@ -438,38 +325,20 @@ while  True:
         
     
     if choice == 1:
-        create_student_file()
+        student_information.register()
            
     elif choice == 2:
-        add_student_information()
+        student_information.show_details()
      
     elif choice == 3:
-        view_student_information()
+        student_information.add_grades()
         
+    
     elif choice == 4:
-        search_student_information()
-    
+        student_information.update_student()
+        
     elif choice == 5:
-        update_student_information()
-    
-    elif choice == 6:
-        delete_student_information()
+        student_information.delete_student()
     
     
-    elif choice == 7:
-        create_teacher_file()
     
-    elif choice == 8:
-        add_teacher_information()
-    
-    elif choice == 9:
-        view_teacher_information()
-            
-    elif choice == 10:
-        search_teacher_information()
-    
-    elif choice == 11:
-        update_teacher_information()
-    
-    elif choice == 12:
-        delete_teacher_information()
