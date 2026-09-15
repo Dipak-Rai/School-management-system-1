@@ -13,5 +13,14 @@
             }
         }
     ],
-    "teachers": []
+    "teachers": [
+        {
+            "teacher_id": "102",
+            "name": "Suman Dume Rai",
+            "subject": "English",
+            "age": 26,
+            "phone_number": 9812345678,
+            "address": "Dharan"
+        }
+    ]
 }
